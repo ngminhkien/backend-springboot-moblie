@@ -1,0 +1,17 @@
+server:
+  port: 6969
+  servlet:
+    context-path: /moblie
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/demo_moblie
+    username: root
+    password: kien2005
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+jwt:
+  signerKey: "LoaRYfq4D8V/v47ttaDyDsDe/FbizZ7rix3tLf48JsU="

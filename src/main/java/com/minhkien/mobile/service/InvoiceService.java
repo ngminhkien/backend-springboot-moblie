@@ -1,0 +1,149 @@
+package com.minhkien.mobile.service;
+
+import com.minhkien.mobile.dto.request.InvoiceRequest;
+import com.minhkien.mobile.dto.response.InvoiceResponse;
+import com.minhkien.mobile.entity.*;
+import com.minhkien.mobile.enums.DiscountType;
+import com.minhkien.mobile.mapper.InvoiceMapper;
+import com.minhkien.mobile.responsitory.*;
+import jakarta.transaction.Transactional;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
+public class InvoiceService {
+
+    UserRepository userRepo;
+    ShowtimeRepository showtimeRepo;
+    SeatTypeRepository seatTypeRepo;
+    FoodItemRepository foodItemRepo;
+    VoucherRepository voucherRepo;
+
+    InvoiceRepository invoiceRepo;
+    InvoiceDetailRepository invoiceDetailRepo;
+    FoodInvoiceRepository foodInvoiceRepo;
+
+    InvoiceMapper mapper;
+
+    @Transactional
+    public InvoiceResponse createInvoice(InvoiceRequest req) {
+
+        User user = userRepo.findById(req.getMaUser())
+                .orElseThrow(() -> new RuntimeException("User không tồn tại"));
+
+        Showtime showtime = showtimeRepo.findById(req.getMaSuatChieu())
+                .orElseThrow(() -> new RuntimeException("Suất chiếu không tồn tại"));
+
+        Voucher voucher = null;
+        if (req.getVoucherId() != null) {
+            voucher = voucherRepo.findById(req.getVoucherId())
+                    .orElseThrow(() -> new RuntimeException("Voucher không tồn tại"));
+        }
+
+        Invoice invoice = new Invoice();
+        invoice.setUser(user);
+        invoice.setShowtime(showtime);
+        invoice.setVoucher(voucher);
+        invoice.setNgayTao(LocalDateTime.now());
+        invoice.setTrangThai(true);
+        invoiceRepo.save(invoice);
+
+        double tongTienGhe = 0.0;
+        double tongTienDoAn = 0.0;
+
+        // ======= GHẾ =======
+        List<InvoiceResponse.GheResponse> gheResponseList = new ArrayList<>();
+
+        for (InvoiceRequest.SeatRequest s : req.getGheList()) {
+
+            SeatType seat = seatTypeRepo.findById(s.getMaSeatType())
+                    .orElseThrow(() -> new RuntimeException("SeatType không tồn tại"));
+
+            InvoiceDetail ct = new InvoiceDetail();
+            ct.setHoaDon(invoice);
+            ct.setGhe(seat);
+            invoiceDetailRepo.save(ct);
+
+            tongTienGhe += seat.getGia();
+
+            gheResponseList.add(
+                    InvoiceResponse.GheResponse.builder()
+                            .maSeatType(seat.getMaSeatType())
+                            //.tenLoaiGhe(seat.getTenLoai())
+                            .gia(seat.getGia())
+                            .build()
+            );
+        }
+
+        // ======= ĐỒ ĂN =======
+        List<InvoiceResponse.DoAnResponse> doAnResponseList = new ArrayList<>();
+
+        for (InvoiceRequest.FoodRequest f : req.getDoAnList()) {
+
+            FoodItem food = foodItemRepo.findById(f.getFoodId())
+                    .orElseThrow(() -> new RuntimeException("Food không tồn tại"));
+
+            FoodInvoice fi = new FoodInvoice();
+            fi.setHoaDon(invoice);
+            fi.setDoAn(food);
+            fi.setSoLuong(f.getSoLuong());
+            foodInvoiceRepo.save(fi);
+
+            tongTienDoAn += food.getGia() * f.getSoLuong();
+
+            doAnResponseList.add(
+                    InvoiceResponse.DoAnResponse.builder()
+                            .foodId(food.getMaFoodItem())
+                            .tenDoAn(food.getTenFoodItem())
+                            .soLuong(f.getSoLuong())
+                            .gia(food.getGia())
+                            .thanhTien(food.getGia() * f.getSoLuong())
+                            .build()
+            );
+        }
+
+        double tongTienTruocGiam = tongTienGhe + tongTienDoAn;
+        double soTienGiam = tinhGiamGia(voucher, tongTienTruocGiam);
+        double tongTienSauGiam = tongTienTruocGiam - soTienGiam;
+
+        invoice.setTongTien(tongTienSauGiam);
+        invoiceRepo.save(invoice);
+
+        return InvoiceResponse.builder()
+                .maHoaDon(invoice.getMaHoaDon())
+                .userName(user.getHoTen())
+                .tenSuatChieu(showtime.getFilm().getTenPhim())
+                .ngayTao(invoice.getNgayTao())
+                .voucher(voucher != null ? voucher.getMaGiamGia() : null)
+                .tongTienTruocGiam(tongTienTruocGiam)
+                .soTienGiam(soTienGiam)
+                .tongTienSauGiam(tongTienSauGiam)
+                .gheList(gheResponseList)
+                .doAnList(doAnResponseList)
+                .build();
+    }
+
+    private double tinhGiamGia(Voucher voucher, double tong) {
+        if (voucher == null) return 0;
+
+        if (voucher.getLoaiGiamGia() == DiscountType.PERCENTAGE) {
+            return tong * (voucher.getGiaTriGiam() / 100);
+        }
+
+        if (voucher.getLoaiGiamGia() == DiscountType.AMOUNT) {
+            return voucher.getGiaTriGiam();
+        }
+
+        return 0;
+    }
+}
