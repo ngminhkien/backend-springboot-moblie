@@ -1,6 +1,8 @@
 package com.minhkien.mobile.responsitory;
 
+import com.minhkien.mobile.dto.response.FilmResponse;
 import com.minhkien.mobile.entity.Film;
+import com.minhkien.mobile.enums.MovieStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -26,4 +28,6 @@ public interface FilmRepository extends JpaRepository<Film, String> {
             @Param("minAge") Integer minAge,
             Pageable pageable
     );
+
+    List<Film> findByTrangThai(MovieStatus trangThai);
 }

@@ -28,6 +28,22 @@ public class FilmController {
     FilmService filmService;
     FilmRepository filmRepository;
 
+    @GetMapping("/hot")
+    public List<FilmResponse> hot() {
+        return filmService.getHotFilms();
+    }
+
+    @GetMapping("/now-showing")
+    public List<FilmResponse> nowShowing() {
+        return filmService.getNowShowing();
+    }
+
+    @GetMapping("/upcoming")
+    public List<FilmResponse> upcoming() {
+        return filmService.getUpcoming();
+    }
+
+
     //api tạo film mới
     @PostMapping
     public FilmResponse createMovie(@RequestBody FilmCreationRequest request) {

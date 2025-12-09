@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class ShowtimeResponse {
 
     Long id;
-    String tenPhim;
+    String maPhim;
     String tenRap;
     String tenPhong;
     LocalDateTime tgBatDau;

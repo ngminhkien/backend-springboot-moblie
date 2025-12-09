@@ -10,7 +10,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface ShowtimeMapper {
 
-    @Mapping(source = "film.tenPhim", target = "tenPhim")
+    @Mapping(source = "film.maPhim", target = "maPhim")
     @Mapping(source = "cinema.tenRap", target = "tenRap")
     @Mapping(source = "room.tenPhong", target = "tenPhong")
     ShowtimeResponse toResponse(Showtime showtime);

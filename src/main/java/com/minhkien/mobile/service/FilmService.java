@@ -4,10 +4,12 @@ import com.minhkien.mobile.dto.request.FilmCreationRequest;
 import com.minhkien.mobile.dto.response.FilmResponse;
 import com.minhkien.mobile.entity.Film;
 import com.minhkien.mobile.entity.Genre;
+import com.minhkien.mobile.entity.InvoiceDetail;
 import com.minhkien.mobile.enums.MovieStatus;
 import com.minhkien.mobile.mapper.FilmMapper;
 import com.minhkien.mobile.responsitory.FilmRepository;
 import com.minhkien.mobile.responsitory.GenreRepository;
+import com.minhkien.mobile.responsitory.InvoiceDetailRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -32,6 +35,7 @@ public class FilmService {
     GenreRepository genreRepo;
     FilmMapper filmMapper;
     FilmRepository filmRepository;
+    InvoiceDetailRepository invoiceDetailRepository;
 
     //tạo
     public FilmResponse create(FilmCreationRequest request) {
@@ -58,6 +62,48 @@ public class FilmService {
         movie.setGenres(genres);
 
         return filmMapper.toFilmResponse(filmRepository.save(movie));
+    }
+
+    //hàm lấy film hot đơn giản nhưng không hiệu quả nếu invoice detail quá lớn
+    // ======= 1. Phim đang chiếu =======
+    public List<FilmResponse> getNowShowing() {
+        return filmRepository.findByTrangThai(MovieStatus.NOW_SHOWING)
+                .stream()
+                .map(filmMapper::toFilmResponse)
+                .collect(Collectors.toList());
+    }
+
+    // ======= 2. Phim sắp chiếu =======
+    public List<FilmResponse> getUpcoming() {
+        return filmRepository.findByTrangThai(MovieStatus.UPCOMING)
+                .stream()
+                .map(filmMapper::toFilmResponse)
+                .collect(Collectors.toList());
+    }
+
+    // ======= 4. Phim hot (STREAM, không JPQL) =======
+    public List<FilmResponse> getHotFilms() {
+
+        // Lấy toàn bộ invoice detail (mỗi detail = 1 ghế = 1 người xem)
+        List<InvoiceDetail> details = invoiceDetailRepository.findAll();
+
+        // Gom nhóm theo Film rồi đếm số ghế (view count)
+        Map<Film, Long> countByFilm = details.stream()
+                .collect(Collectors.groupingBy(
+                        d -> d.getHoaDon().getShowtime().getFilm(),
+                        Collectors.counting()
+                ));
+
+        // Sắp giảm dần theo số lượt xem
+        List<Film> sorted = countByFilm.entrySet().stream()
+                .sorted(Map.Entry.<Film, Long>comparingByValue().reversed())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        // Convert sang response bằng MapStruct
+        return sorted.stream()
+                .map(filmMapper::toFilmResponse)
+                .collect(Collectors.toList());
     }
 
     //tìm kiếm
