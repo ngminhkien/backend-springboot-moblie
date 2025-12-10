@@ -15,6 +15,7 @@ import java.util.Set;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class FilmResponse {
 
+    String maPhim;
     String tenPhim;
     LocalDate ngayCongChieu;
     LocalDate ngayKTChieu;

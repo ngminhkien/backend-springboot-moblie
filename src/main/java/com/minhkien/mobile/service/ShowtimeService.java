@@ -1,10 +1,12 @@
 package com.minhkien.mobile.service;
 
 import com.minhkien.mobile.dto.request.ShowtimeRequest;
+import com.minhkien.mobile.dto.response.ShowtimeResponse;
 import com.minhkien.mobile.entity.Cinema;
 import com.minhkien.mobile.entity.Film;
 import com.minhkien.mobile.entity.Room;
 import com.minhkien.mobile.entity.Showtime;
+import com.minhkien.mobile.mapper.ShowtimeMapper;
 import com.minhkien.mobile.responsitory.CinemaRepository;
 import com.minhkien.mobile.responsitory.FilmRepository;
 import com.minhkien.mobile.responsitory.RoomRepository;
@@ -29,6 +31,28 @@ public class ShowtimeService {
     FilmRepository filmRepository;
     CinemaRepository  cinemaRepository;
     RoomRepository roomRepo;
+    ShowtimeMapper  mapper;
+
+    //hàm nhận vào mã Phim trả ra phim suất chiếu của phim đó (từ now)
+    public List<ShowtimeResponse> getShowtimesByFilm(String maPhim) {
+
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Showtime> list = showtimeRepo
+                .findByFilm_MaPhimAndTgBatDauGreaterThanEqualOrderByTgBatDauAsc(maPhim, now);
+
+        return mapper.toResponseList(list);
+    }
+
+    //hàm nhận vào mã Rạp trả ra phim suất chiếu của rạp đó (từ now)
+    public List<ShowtimeResponse> getShowtimesByCinema(Long maRap) {
+        LocalDateTime now = LocalDateTime.now();
+
+        List<Showtime> list = showtimeRepo
+                .findByCinema_MaRapAndTgBatDauGreaterThanEqualOrderByTgBatDauAsc(maRap, now);
+
+        return mapper.toResponseList(list);
+    }
 
     public Showtime createShowtime(ShowtimeRequest req) {
         Film film = filmRepository.findById(req.getMaPhim())
