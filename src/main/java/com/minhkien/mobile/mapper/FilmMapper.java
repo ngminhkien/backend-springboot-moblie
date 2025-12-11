@@ -17,6 +17,6 @@ public interface FilmMapper {
     // Hàm toFilmResponse đã đúng
     @Mapping(source = "maPhim", target = "maPhim")
     @Mapping(target = "genres",
-            expression = "java(film.getGenres().stream().map(g -> g.getMaGenre()).collect(java.util.stream.Collectors.toSet()))")
+            expression = "java(film.getGenres().stream().map(g -> g.getTenGenre()).collect(java.util.stream.Collectors.toSet()))")
     FilmResponse toFilmResponse(Film film);
 }
