@@ -14,7 +14,7 @@ public class ShowtimeResponse {
 
     Long id;
     String maPhim;
-    String tenRap;
+    Long maRap;
     String tenPhong;
     LocalDateTime tgBatDau;
     LocalDateTime tgKetThuc;

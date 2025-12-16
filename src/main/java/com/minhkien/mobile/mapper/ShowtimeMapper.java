@@ -11,7 +11,7 @@ import java.util.List;
 public interface ShowtimeMapper {
 
     @Mapping(source = "film.maPhim", target = "maPhim")
-    @Mapping(source = "cinema.tenRap", target = "tenRap")
+    @Mapping(source = "cinema.maRap", target = "maRap")
     @Mapping(source = "room.tenPhong", target = "tenPhong")
     ShowtimeResponse toResponse(Showtime showtime);
 
