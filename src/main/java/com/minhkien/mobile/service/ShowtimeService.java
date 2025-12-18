@@ -33,26 +33,40 @@ public class ShowtimeService {
     RoomRepository roomRepo;
     ShowtimeMapper  mapper;
 
-    //hàm nhận vào mã Phim trả ra phim suất chiếu của phim đó (từ now)
-    public List<ShowtimeResponse> getShowtimesByFilm(String maPhim) {
+    //hàm chuẩn hóa cả 3 th: maPhim, maRap, cả2
+    public List<ShowtimeResponse> searchShowtimes(String maPhim, Long maRap) {
+        if (maPhim != null && maPhim.trim().isEmpty()) {
+            maPhim = null;
+        }
 
         LocalDateTime now = LocalDateTime.now();
 
-        List<Showtime> list = showtimeRepo
-                .findByFilm_MaPhimAndTgBatDauGreaterThanEqualOrderByTgBatDauAsc(maPhim, now);
+        // Gọi hàm Query Dynamic
+        List<Showtime> list = showtimeRepo.findShowtimesDynamic(maPhim, maRap, now);
 
         return mapper.toResponseList(list);
     }
+
+    //hàm nhận vào mã Phim trả ra phim suất chiếu của phim đó (từ now)
+//    public List<ShowtimeResponse> getShowtimesByFilm(String maPhim) {
+//
+//        LocalDateTime now = LocalDateTime.now();
+//
+//        List<Showtime> list = showtimeRepo
+//                .findByFilm_MaPhimAndTgBatDauGreaterThanEqualOrderByTgBatDauAsc(maPhim, now);
+//
+//        return mapper.toResponseList(list);
+//    }
 
     //hàm nhận vào mã Rạp trả ra phim suất chiếu của rạp đó (từ now)
-    public List<ShowtimeResponse> getShowtimesByCinema(Long maRap) {
-        LocalDateTime now = LocalDateTime.now();
-
-        List<Showtime> list = showtimeRepo
-                .findByCinema_MaRapAndTgBatDauGreaterThanEqualOrderByTgBatDauAsc(maRap, now);
-
-        return mapper.toResponseList(list);
-    }
+//    public List<ShowtimeResponse> getShowtimesByCinema(Long maRap) {
+//        LocalDateTime now = LocalDateTime.now();
+//
+//        List<Showtime> list = showtimeRepo
+//                .findByCinema_MaRapAndTgBatDauGreaterThanEqualOrderByTgBatDauAsc(maRap, now);
+//
+//        return mapper.toResponseList(list);
+//    }
 
     public Showtime createShowtime(ShowtimeRequest req) {
         Film film = filmRepository.findById(req.getMaPhim())
