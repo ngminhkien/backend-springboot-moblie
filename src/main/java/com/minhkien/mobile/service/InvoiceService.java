@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +35,54 @@ public class InvoiceService {
     FoodInvoiceRepository foodInvoiceRepo;
 
     InvoiceMapper mapper;
+
+    public List<InvoiceResponse> getHistoryByUser(String userId) {
+        // 1. Lấy list hóa đơn từ DB
+        List<Invoice> invoices = invoiceRepo.findByUser_MaUserOrderByNgayTaoDesc(userId);
+
+        // 2. Convert sang Response
+        return invoices.stream().map(this::mapToInvoiceResponse).collect(Collectors.toList());
+    }
+
+    private InvoiceResponse mapToInvoiceResponse(Invoice invoice) {
+
+        // 1. Map List Ghế (Lấy từ giaLichSu)
+        List<InvoiceResponse.GheResponse> gheList = invoice.getChiTietList().stream()
+                .map(ct -> InvoiceResponse.GheResponse.builder()
+                        .maSeatType(ct.getGhe().getMaSeatType())
+                        .tenLoaiGhe(ct.getGhe().getTenSeatType())
+                        .gia(ct.getGiaLichSu()) // <--- Lấy giá lịch sử, KHÔNG lấy giá hiện tại
+                        .build())
+                .collect(Collectors.toList());
+
+        // 2. Map List Đồ ăn (Lấy từ giaLichSu)
+        List<InvoiceResponse.DoAnResponse> doAnList = invoice.getDoAnList().stream()
+                .map(fi -> InvoiceResponse.DoAnResponse.builder()
+                        .foodId(fi.getDoAn().getMaFoodItem())
+                        .tenDoAn(fi.getDoAn().getTenFoodItem())
+                        .soLuong(fi.getSoLuong())
+                        .gia(fi.getGiaLichSu()) // <--- Lấy giá lịch sử
+                        .thanhTien(fi.getGiaLichSu() * fi.getSoLuong())
+                        .build())
+                .collect(Collectors.toList());
+
+        // 3. Trả về Response (Lấy thẳng từ các cột đã lưu trong Invoice)
+        return InvoiceResponse.builder()
+                .maHoaDon(invoice.getMaHoaDon())
+                .userName(invoice.getUser().getHoTen())
+                .tenSuatChieu(invoice.getShowtime().getFilm().getTenPhim())
+                .ngayTao(invoice.getNgayTao())
+                .voucher(invoice.getVoucher() != null ? invoice.getVoucher().getMaGiamGia() : null)
+
+                // KHÔNG CẦN TÍNH TOÁN LẠI
+                .tongTienTruocGiam(invoice.getTongTienGoc())
+                .soTienGiam(invoice.getSoTienGiam())
+                .tongTienSauGiam(invoice.getTongTien())
+
+                .gheList(gheList)
+                .doAnList(doAnList)
+                .build();
+    }
 
     @Transactional
     public InvoiceResponse createInvoice(InvoiceRequest req) {
@@ -72,6 +121,7 @@ public class InvoiceService {
             InvoiceDetail ct = new InvoiceDetail();
             ct.setHoaDon(invoice);
             ct.setGhe(seat);
+            ct.setGiaLichSu(seat.getGia());
             invoiceDetailRepo.save(ct);
 
             tongTienGhe += seat.getGia();
@@ -97,6 +147,7 @@ public class InvoiceService {
             fi.setHoaDon(invoice);
             fi.setDoAn(food);
             fi.setSoLuong(f.getSoLuong());
+            fi.setGiaLichSu(food.getGia());
             foodInvoiceRepo.save(fi);
 
             tongTienDoAn += food.getGia() * f.getSoLuong();

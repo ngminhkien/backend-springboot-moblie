@@ -24,4 +24,6 @@ public class InvoiceDetail {
     @ManyToOne
     @JoinColumn(name = "maSeatType", nullable = false)
     SeatType ghe;
+
+    Double giaLichSu;
 }

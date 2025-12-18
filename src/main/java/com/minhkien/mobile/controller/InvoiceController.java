@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/invoices")
@@ -19,6 +21,11 @@ import org.springframework.web.bind.annotation.*;
 public class InvoiceController {
 
     InvoiceService invoiceService;
+
+    @GetMapping("/history/{maUser}")
+    public ResponseEntity<List<InvoiceResponse>> getHistory(@PathVariable String maUser) {
+        return ResponseEntity.ok(invoiceService.getHistoryByUser(maUser));
+    }
 
     @PostMapping()
     public ResponseEntity<InvoiceResponse> create(@RequestBody InvoiceRequest req) {

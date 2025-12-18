@@ -25,5 +25,6 @@ public class FoodInvoice {
     @JoinColumn(name = "do_an_id", nullable = false)
     FoodItem doAn;
 
+    Double giaLichSu;
     Integer soLuong;
 }

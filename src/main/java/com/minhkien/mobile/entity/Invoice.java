@@ -40,9 +40,11 @@ public class Invoice {
     List<FoodInvoice> doAnList;
 
 //    // Liên kết tới chi tiết hóa đơn (ghế)
-//    @OneToMany(mappedBy = "hoaDon", cascade = CascadeType.ALL, orphanRemoval = true)
-//    List<InvoiceDetail> chiTietList;
+    @OneToMany(mappedBy = "hoaDon", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<InvoiceDetail> chiTietList;
 
+    Double tongTienGoc;
+    Double soTienGiam;
     Double tongTien;
 
     LocalDateTime ngayTao;
