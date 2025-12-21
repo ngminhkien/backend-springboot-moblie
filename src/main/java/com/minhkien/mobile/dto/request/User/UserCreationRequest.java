@@ -1,10 +1,9 @@
-package com.minhkien.mobile.dto.request;
+package com.minhkien.mobile.dto.request.User;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
-import java.util.Set;
 
 @Data
 @NoArgsConstructor

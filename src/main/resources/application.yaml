@@ -1,7 +1,7 @@
 server:
   port: 6969
   servlet:
-    context-path: /moblie
+    context-path: /mobile
 
 spring:
   datasource:

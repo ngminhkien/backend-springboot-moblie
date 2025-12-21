@@ -1,8 +1,8 @@
 package com.minhkien.mobile.controller;
 
-import com.minhkien.mobile.dto.request.UserCreationRequest;
+import com.minhkien.mobile.dto.request.User.UserCreationRequest;
+import com.minhkien.mobile.dto.request.User.UserUpdateRequest;
 import com.minhkien.mobile.dto.response.UserResponse;
-import com.minhkien.mobile.entity.User;
 import com.minhkien.mobile.service.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +23,22 @@ public class UserController {
 
     UserService userService;
 
+    @PutMapping("/{userId}")
+    public UserResponse updateUser(@PathVariable String userId, @RequestBody UserUpdateRequest request) {
+        return userService.updateUser(userId, request);
+    }
+
+    @DeleteMapping("/{userId}")
+    public String deleteUser(@PathVariable String userId) {
+        userService.deleteUser(userId);
+        return "User has been deleted successfully";
+    }
+
     //chỉ hỏi nếu roles là user trả vêf 401 thì bỏ qua do là admin
     @GetMapping("/{userId}/favorite-genres")
     public ResponseEntity<?> getFavoriteGenres(@PathVariable String userId) {
         return ResponseEntity.ok(userService.getFavoriteGenres(userId));
     }
-//    Nếu trả về { } hoặc [] → user chưa chọn sở thích → mở form chọn thể loại.
 
     @PostMapping()
     UserResponse createUser(@RequestBody UserCreationRequest request) {

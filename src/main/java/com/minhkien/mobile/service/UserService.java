@@ -1,12 +1,14 @@
 package com.minhkien.mobile.service;
 
 
-import com.minhkien.mobile.dto.request.UserCreationRequest;
+import com.minhkien.mobile.dto.request.User.UserCreationRequest;
+import com.minhkien.mobile.dto.request.User.UserUpdateRequest;
 import com.minhkien.mobile.dto.response.UserResponse;
 import com.minhkien.mobile.entity.Genre;
 import com.minhkien.mobile.entity.User;
 import com.minhkien.mobile.enums.Role;
 import com.minhkien.mobile.mapper.UserMapper;
+import com.minhkien.mobile.responsitory.GenreRepository;
 import com.minhkien.mobile.responsitory.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +30,31 @@ public class UserService {
 
     UserRepository userRepository;
     PasswordEncoder passwordEncoder;
+    GenreRepository genreRepository;
     UserMapper userMapper;
+
+    public void deleteUser(String userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new RuntimeException("User not found with id: " + userId);
+        }
+        userRepository.deleteById(userId);
+    }
+
+    public UserResponse updateUser(String userId, UserUpdateRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        userMapper.updateUserFromRequest(request, user);
+
+        if (request.getMaGenres() != null) {
+            List<Genre> genres = genreRepository.findAllById(request.getMaGenres());
+
+            if (genres.size() != request.getMaGenres().size()) {
+                log.error("Genres length mismatch");
+            }
+            user.setFavoriteGenres(new HashSet<>(genres));
+        }
+        return userMapper.toUserResponse(userRepository.save(user));
+    }
 
     public UserResponse getMyInfo() {
 
