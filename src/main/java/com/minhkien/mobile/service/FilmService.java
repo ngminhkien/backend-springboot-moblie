@@ -1,6 +1,7 @@
 package com.minhkien.mobile.service;
 
-import com.minhkien.mobile.dto.request.FilmCreationRequest;
+import com.minhkien.mobile.dto.request.film.FilmCreationRequest;
+import com.minhkien.mobile.dto.request.film.FilmUpdateRequest;
 import com.minhkien.mobile.dto.response.FilmResponse;
 import com.minhkien.mobile.entity.Film;
 import com.minhkien.mobile.entity.Genre;
@@ -10,6 +11,7 @@ import com.minhkien.mobile.mapper.FilmMapper;
 import com.minhkien.mobile.responsitory.FilmRepository;
 import com.minhkien.mobile.responsitory.GenreRepository;
 import com.minhkien.mobile.responsitory.InvoiceDetailRepository;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,6 +23,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,7 +40,33 @@ public class FilmService {
     FilmRepository filmRepository;
     InvoiceDetailRepository invoiceDetailRepository;
 
-    //tạo
+    @Transactional
+    public FilmResponse update(String filmId, FilmUpdateRequest request) {
+        Film existingFilm = filmRepository.findById(filmId)
+                .orElseThrow(() -> new RuntimeException("Phim không tồn tại: " + filmId));
+        filmMapper.updateFilmFromRequest(request, existingFilm);
+        if (request.getGenresId() != null) {
+            List<Genre> newGenres = genreRepo.findAllById(request.getGenresId());
+            existingFilm.setGenres(new HashSet<>(newGenres));
+        }
+        if (request.getNgayCongChieu() != null || request.getNgayKTChieu() != null) {
+            if (request.getTrangThai() == null) {
+                existingFilm.setTrangThai(calculateStatus(existingFilm));
+            }
+        }
+
+        return filmMapper.toResponse(filmRepository.save(existingFilm));
+    }
+
+    @Transactional
+    public void delete(String filmId) {
+        Film film = filmRepository.findById(filmId)
+                .orElseThrow(() -> new RuntimeException("Phim không tồn tại: " + filmId));
+
+        film.setTrangThai(MovieStatus.ENDED);
+        filmRepository.save(film);
+    }
+
     public FilmResponse create(FilmCreationRequest request) {
 
         Film movie = Film.builder()

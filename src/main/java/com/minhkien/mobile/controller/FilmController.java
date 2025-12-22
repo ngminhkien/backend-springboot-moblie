@@ -1,6 +1,7 @@
 package com.minhkien.mobile.controller;
 
-import com.minhkien.mobile.dto.request.FilmCreationRequest;
+import com.minhkien.mobile.dto.request.film.FilmCreationRequest;
+import com.minhkien.mobile.dto.request.film.FilmUpdateRequest;
 import com.minhkien.mobile.dto.response.FilmResponse;
 import com.minhkien.mobile.entity.Film;
 import com.minhkien.mobile.enums.MovieStatus;
@@ -27,6 +28,19 @@ public class FilmController {
 
     FilmService filmService;
     FilmRepository filmRepository;
+
+    @PutMapping("/{id}")
+    public ResponseEntity<FilmResponse> updateFilm(
+            @PathVariable String id,
+            @RequestBody FilmUpdateRequest request) {
+        return ResponseEntity.ok(filmService.update(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteFilm(@PathVariable String id) {
+        filmService.delete(id);
+        return ResponseEntity.ok("Đã xóa phim (chuyển sang ngưng chiếu) thành công!");
+    }
 
     @GetMapping("/hot")
     public List<FilmResponse> hot() {

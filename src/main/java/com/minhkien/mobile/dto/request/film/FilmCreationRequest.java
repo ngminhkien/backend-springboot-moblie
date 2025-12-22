@@ -1,11 +1,9 @@
-package com.minhkien.mobile.dto.request;
+package com.minhkien.mobile.dto.request.film;
 
-import com.minhkien.mobile.enums.MovieStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Set;
 
 @Data

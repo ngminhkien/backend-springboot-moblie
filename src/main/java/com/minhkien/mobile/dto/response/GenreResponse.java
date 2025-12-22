@@ -12,5 +12,5 @@ public class GenreResponse {
 
     String maGenre;
     String tenGenre;
-    int phanLoai;
+    String phanLoai;
 }
