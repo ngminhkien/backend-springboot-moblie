@@ -16,12 +16,16 @@ public class InvoiceResponse {
 
     Long maHoaDon;
     String userName;
-    String tenSuatChieu;
+    String tenPhim;
     Double tongTienTruocGiam;
     Double soTienGiam;
     Double tongTienSauGiam;
     String voucher;
     LocalDateTime ngayTao;
+    LocalDateTime tgBatDau;
+    String tenRap;
+    String diaChiRap;
+    String tenPhong;
     String url;
     List<GheResponse> gheList;
     List<DoAnResponse> doAnList;
