@@ -1,6 +1,7 @@
 package com.minhkien.mobile.service;
 
 
+import com.minhkien.mobile.dto.request.User.PasswordChangeRequest;
 import com.minhkien.mobile.dto.request.User.UserCreationRequest;
 import com.minhkien.mobile.dto.request.User.UserUpdateRequest;
 import com.minhkien.mobile.dto.response.UserResponse;
@@ -32,6 +33,18 @@ public class UserService {
     PasswordEncoder passwordEncoder;
     GenreRepository genreRepository;
     UserMapper userMapper;
+
+    public void changePassword(String userId, PasswordChangeRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getMatKhau())) {
+            throw new RuntimeException("Old password is incorrect");
+        }
+
+        user.setMatKhau(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
 
     public void deleteUser(String userId) {
         if (!userRepository.existsById(userId)) {

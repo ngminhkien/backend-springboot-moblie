@@ -13,6 +13,8 @@ public interface ShowtimeMapper {
     @Mapping(source = "film.maPhim", target = "maPhim")
     @Mapping(source = "film.tenPhim", target = "tenPhim")
     @Mapping(source = "cinema.maRap", target = "maRap")
+//    @Mapping(source = "cinema.tenRap", target = "tenRap")
+//    @Mapping(source = "cinema.diaDiem", target = "diaDiem")
     @Mapping(source = "room.tenPhong", target = "tenPhong")
     ShowtimeResponse toResponse(Showtime showtime);
 

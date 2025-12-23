@@ -1,5 +1,6 @@
 package com.minhkien.mobile.controller;
 
+import com.minhkien.mobile.dto.request.User.PasswordChangeRequest;
 import com.minhkien.mobile.dto.request.User.UserCreationRequest;
 import com.minhkien.mobile.dto.request.User.UserUpdateRequest;
 import com.minhkien.mobile.dto.response.UserResponse;
@@ -26,6 +27,12 @@ public class UserController {
     @PutMapping("/{userId}")
     public UserResponse updateUser(@PathVariable String userId, @RequestBody UserUpdateRequest request) {
         return userService.updateUser(userId, request);
+    }
+
+    @PutMapping("/{userId}/password")
+    public ResponseEntity<String> changePassword(@PathVariable String userId, @RequestBody PasswordChangeRequest request) {
+        userService.changePassword(userId, request);
+        return ResponseEntity.ok("Password updated successfully");
     }
 
     @DeleteMapping("/{userId}")

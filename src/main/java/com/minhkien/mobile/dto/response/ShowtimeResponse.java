@@ -16,6 +16,8 @@ public class ShowtimeResponse {
     String maPhim;
     String tenPhim;
     Long maRap;
+//    String tenRap;
+//    String diaDiem;
     String tenPhong;
     LocalDateTime tgBatDau;
     LocalDateTime tgKetThuc;
