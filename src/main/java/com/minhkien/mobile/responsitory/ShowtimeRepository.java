@@ -1,6 +1,5 @@
 package com.minhkien.mobile.responsitory;
 
-import com.minhkien.mobile.dto.response.ShowtimeResponse;
 import com.minhkien.mobile.entity.Showtime;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -30,4 +29,19 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Long> {
             @Param("maRap") Long maRap,
             @Param("now") LocalDateTime now
     );
+
+    @Query("SELECT s FROM Showtime s WHERE s.room.maPhong = :roomId " +
+            "AND ((:newStart < s.tgKetThuc) AND (:newEnd > s.tgBatDau))")
+    List<Showtime> checkOverlap(Long roomId, LocalDateTime newStart, LocalDateTime newEnd);
+
+    // Lấy tất cả suất chiếu của một rạp, sắp xếp theo thời gian bắt đầu
+    List<Showtime> findByCinema_MaRapOrderByTgBatDauAsc(Long maRap);
+
+    // Lọc suất chiếu theo rạp và theo ngày (start <= tgBatDau < end)
+    @Query("SELECT s FROM Showtime s WHERE s.cinema.maRap = :maRap " +
+            "AND s.tgBatDau >= :start AND s.tgBatDau < :end " +
+            "ORDER BY s.tgBatDau ASC")
+    List<Showtime> findByCinemaAndDateRange(@Param("maRap") Long maRap,
+                                             @Param("start") LocalDateTime start,
+                                             @Param("end") LocalDateTime end);
 }

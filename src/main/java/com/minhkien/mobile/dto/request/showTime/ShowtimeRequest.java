@@ -1,4 +1,4 @@
-package com.minhkien.mobile.dto.request;
+package com.minhkien.mobile.dto.request.showTime;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

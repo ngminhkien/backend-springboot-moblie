@@ -36,7 +36,7 @@ public class Showtime {
 
     public void calculateEndTime() {
         if (film != null && tgBatDau != null) {
-            this.tgKetThuc = tgKetThuc.plusMinutes(film.getThoiLuong());
+            this.tgKetThuc = tgBatDau.plusMinutes(film.getThoiLuong());
         }
     }
 }

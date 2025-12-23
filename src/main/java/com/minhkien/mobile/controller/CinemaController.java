@@ -1,16 +1,14 @@
 package com.minhkien.mobile.controller;
 
 import com.minhkien.mobile.dto.response.CinemaResponse;
+import com.minhkien.mobile.dto.response.RoomResponse;
 import com.minhkien.mobile.service.CinemaService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,5 +25,11 @@ public class CinemaController {
     @GetMapping
     public ResponseEntity<List<CinemaResponse>> getAllCinemas() {
         return ResponseEntity.ok(cinemaService.getAllCinemas());
+    }
+
+    // Lấy danh sách phòng của một rạp
+    @GetMapping("/{maRap}/rooms")
+    public ResponseEntity<List<RoomResponse>> getRoomsByCinema(@PathVariable Long maRap) {
+        return ResponseEntity.ok(cinemaService.getRoomsByCinema(maRap));
     }
 }
