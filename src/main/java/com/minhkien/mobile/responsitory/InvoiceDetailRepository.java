@@ -15,4 +15,6 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, Lo
             "WHERE d.hoaDon.showtime.id = :maSuatChieu " +
             "AND d.hoaDon.trangThai = true")
     List<String> findBookedSeatCodes(@Param("maSuatChieu") Long maSuatChieu);
+
+    long countByHoaDon_TrangThaiTrue();
 }
