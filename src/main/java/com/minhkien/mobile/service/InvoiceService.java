@@ -169,7 +169,18 @@ public class InvoiceService {
         double tongTienSauGiam = tongTienTruocGiam - soTienGiam;
 
         invoice.setTongTien(tongTienSauGiam);
+        invoice.setTongTienGoc(tongTienTruocGiam);
+        invoice.setSoTienGiam(soTienGiam);
         invoiceRepo.save(invoice);
+
+        if (voucher != null) {
+            int currentQty = voucher.getSoLuong();
+            if (currentQty <= 0) {
+                throw new RuntimeException("Voucher đã hết lượt sử dụng");
+            }
+            voucher.setSoLuong(currentQty - 1);
+            voucherRepo.save(voucher);
+        }
 
         return InvoiceResponse.builder()
                 .maHoaDon(invoice.getMaHoaDon())
